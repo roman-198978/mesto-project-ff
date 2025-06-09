@@ -3,12 +3,17 @@ export function openModal(popupElement) {
   popupElement.classList.add("popup_is-opened");
   // Добавляем обработчик нажатия клавиши Esc
   document.addEventListener("keydown", handleEscClose);
+  document.removeEventListener("keydown", handleEscClose);
 }
 
 // Функция закрытия модального окна
 export function closeModal(popupElement) {
   popupElement.classList.remove("popup_is-opened");
+  document.addEventListener("keydown", handleEscClose);
+  document.removeEventListener("keydown", handleEscClose);
 }
+
+ 
 
 // Функция-обработчик для Esc
 function handleEscClose(evt) {

@@ -1,23 +1,20 @@
-import { initialCards } from "./cards";
-import { CardImageClick } from "../index";
 
 const cardTemplate = document.querySelector("#card-template").content;
-const placeList = document.querySelector(".places__list");
+
 //Функция создания карточки
-function createCard(cardData, deleteCard) {
-  const cardElement = cardTemplate.querySelector(".card").cloneNode(true); // клонируем шаблон карты
-
-  //элементы внутри карточки
-
+export function createCard(cardData, {deleteCard, handleLikeButtonClick, cardImageClick}) {
+  const cardElement = cardTemplate.querySelector(".places__item").cloneNode(true); // клонируем шаблон карты
   const cardImage = cardElement.querySelector(".card__image");
   const cardTitle = cardElement.querySelector(".card__title");
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
+  const cardAlternative = cardElement.querySelector('.card__image');
+  
 
   //установка значения из данных карточки
 
   cardImage.src = cardData.link;
-  cardImage.alt = `Фотография места: ${cardData.name}`;
+  cardAlternative.alt = `Фотография места: ${cardData.name}`;
   cardTitle.textContent = cardData.name;
 
   //обработчик удаления карточки
@@ -25,26 +22,27 @@ function createCard(cardData, deleteCard) {
   deleteButton.addEventListener("click", () => {
     deleteCard(cardElement);
   });
+  cardImage.addEventListener("click", () => { 
+    cardImageClick({
+        link: cardData.link,
+        name: cardData.name,
+    });
+});
 
-  //Обработчик лайка
+likeButton.addEventListener("click",(evt) => handleLikeButtonClick(evt));
 
-  likeButton.addEventListener("click", handleLikeButtonClick);
-
-  cardImage.addEventListener("click", () => CardImageClick(cardData));
-
-  return cardElement;
+return cardElement;
 }
 
 //Функция удаления карточки
 
-function deleteCard(cardElement) {
+export function deleteCard(cardElement) {
   cardElement.remove();
 }
 
 //кнопка лайка
 
-function handleLikeButtonClick(evt) {
+export function handleLikeButtonClick(evt) {
   evt.target.classList.toggle("card__like-button_is-active");
 }
 
-export { createCard, deleteCard, handleLikeButtonClick };

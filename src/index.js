@@ -1,22 +1,17 @@
 import "./pages/index.css"; 
-import {
-  createCard,
-  deleteCard,
-  handleLikeButtonClick,
-} from "./components/card.js"; 
-import { initialCards } from "./components/cards.js"; 
+import { handleLikeButtonClick, createCard, deleteCard,} from "./components/card.js"; 
 import { openModal, closeModal } from "./components/modal"; 
+import { initialCards } from "./components/cards.js"; 
 
 // Получаем содержимое элементов
-const cardTemplate = document.querySelector("#card-template").content;
 const placeList = document.querySelector(".places__list");
 const editProfilePopup = document.querySelector(".popup_type_edit");
 const editButton = document.querySelector(".profile__edit-button");
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
-const formElement = document.querySelector('form[name="edit-profile"]');
-const nameInput = formElement.querySelector('input[name="name"]');
-const jobInput = formElement.querySelector('input[name="description"]');
+const formProfile = document.querySelector('form[name="edit-profile"]');
+const nameInput = formProfile.querySelector('input[name="name"]');
+const jobInput = formProfile.querySelector('input[name="description"]');
 const imagePopup = document.querySelector(".popup_type_image");
 const imagePopupImage = imagePopup.querySelector(".popup__image");
 const imagePopupCaption = imagePopup.querySelector(".popup__caption");
@@ -24,17 +19,7 @@ const popups = document.querySelectorAll(".popup");
 const addButton = document.querySelector(".profile__add-button");
 const addCardPopup = document.querySelector(".popup_type_new-card");
 const addCardForm = document.querySelector('form[name="new-place"]');
-const placeNameInput = addCardForm.querySelector('input[name="place-name"]');
-const placeLinkInput = addCardForm.querySelector('input[name="link"]');
 
-// Обработчики и функции
-
-export function CardImageClick({ link, name }) {
-  imagePopupImage.src = link;
-  imagePopupImage.alt = name;
-  imagePopupCaption.textContent = name;
-  openModal(imagePopup);
-}
 
 // Обработчик отправки формы редактирования профиля
 function handleProfileFormSubmit(evt) {
@@ -45,26 +30,26 @@ function handleProfileFormSubmit(evt) {
   // Закрываем попап
   closeModal(editProfilePopup);
 }
-
-// Обработчик отправки формы добавления новой карточки
 function handleAddCardSubmit(evt) {
-  evt.preventDefault(); // Отменяем стандартную отправку формы
-  // Получаем значения из инпутов
-  const name = placeNameInput.value;
-  const link = placeLinkInput.value;
-  // Создаём новую карточку с обработчиками
-  const newCard = createCard({ name, link }, cardTemplate, deleteCard);
-  // Добавляем карточку в начало списка
-  placeList.prepend(newCard);
-  // Закрываем попап и очищаем форму
-  closeModal(addCardPopup);
-  addCardForm.reset();
+    evt.preventDefault();
+    const data = {
+        name: addCardForm.elements['place-name'].value,
+        link: addCardForm.elements['link'].value,
+    };
+    const newCard = createCard(data, {
+        deleteCard,
+        handleLikeButtonClick,
+        cardImageClick
+    });
+    placeList.prepend(newCard);
+    closeModal(addCardPopup);
+    addCardForm.reset();
 }
 
-
+addCardForm.addEventListener('submit', handleAddCardSubmit);
 
 // Отправка формы редактирования профиля
-formElement.addEventListener("submit", handleProfileFormSubmit);
+formProfile.addEventListener("submit", handleProfileFormSubmit);
 // Отправка формы добавления карточки
 addCardForm.addEventListener("submit", handleAddCardSubmit);
 
@@ -97,9 +82,19 @@ popups.forEach(function (popup) {
 
 function addCards() {
   initialCards.forEach((cardData) => {
-    const cardElement = createCard(cardData, deleteCard, CardImageClick);
+    const cardElement = createCard(cardData,{deleteCard, handleLikeButtonClick, cardImageClick});
     placeList.append(cardElement);
   });
 }
-
 addCards();
+
+// Функция для обработки клика по карточке
+function cardImageClick({ link, name }) {
+    
+    imagePopupImage.src = link;
+    imagePopupImage.alt = name;
+    imagePopupCaption.textContent = name;
+    
+    // Открываем попап
+    openModal(imagePopup);
+}
