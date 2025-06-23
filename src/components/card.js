@@ -1,48 +1,85 @@
-
+import { removeCard, deleteLike, putLike } from "./api";
 const cardTemplate = document.querySelector("#card-template").content;
+import { getCurrentUserId } from "../index.js";
 
-//Функция создания карточки
-export function createCard(cardData, {deleteCard, handleLikeButtonClick, cardImageClick}) {
+// Функция создания карточки
+export function createCard(cardData, { deleteCard, handleLikeButtonClick, cardImageClick }) {
   const cardElement = cardTemplate.querySelector(".places__item").cloneNode(true); // клонируем шаблон карты
   const cardImage = cardElement.querySelector(".card__image");
   const cardTitle = cardElement.querySelector(".card__title");
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
-  const cardAlternative = cardElement.querySelector('.card__image');
-  
+  const likeCountElement = cardElement.querySelector(".card__like-count"); // Получаем элемент для количества лайков
 
-  //установка значения из данных карточки
-
+  // установка значения из данных карточки
   cardImage.src = cardData.link;
-  cardAlternative.alt = `Фотография места: ${cardData.name}`;
   cardTitle.textContent = cardData.name;
+  likeCountElement.textContent = cardData.likes.length; // Устанавливаем количество лайков
+  cardElement.dataset.id = cardData._id; // Устанавливаем cardId в data-id
 
-  //обработчик удаления карточки
+  const userId = getCurrentUserId();
 
-  deleteButton.addEventListener("click", () => {
-    deleteCard(cardElement);
-  });
-  cardImage.addEventListener("click", () => { 
-    cardImageClick({
-        link: cardData.link,
-        name: cardData.name,
+  if (cardData.owner && cardData.owner._id !== userId) {
+    deleteButton.style.display = "none"; // Скрываем кнопку удаления, если карточка не принадлежит текущему пользователю
+  } else {
+    // обработчик удаления карточки
+    deleteButton.addEventListener("click", () => {
+      deleteCard(cardData._id, cardElement);
     });
-});
+  }
 
-likeButton.addEventListener("click",(evt) => handleLikeButtonClick(evt));
+  cardImage.addEventListener("click", () => {
+    cardImageClick({
+      link: cardData.link,
+      name: cardData.name,
+    });
+  });
 
-return cardElement;
+  likeButton.addEventListener("click", (evt) => handleLikeButtonClick(cardData._id, evt));
+
+  return cardElement;
 }
 
-//Функция удаления карточки
 
-export function deleteCard(cardElement) {
-  cardElement.remove();
+// Функция для удаления карточки с сервера и из интерфейса
+export function deleteCard(cardId, cardElement) {
+  removeCard(cardId)
+    .then(() => {
+      cardElement.remove();
+    })
+    .catch((err) => {
+      console.error(`Ошибка при удалении карточки: ${err}`);
+    });
 }
 
-//кнопка лайка
+// Функция обработки клика по кнопке лайка
+export function handleLikeButtonClick(cardId, evt) {
+  const likeButton = evt.target;
+  const isLiked = likeButton.classList.contains("card__like-button_is-active");
 
-export function handleLikeButtonClick(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+  if (isLiked) {
+    // Если карточка уже лайкнута, отправляем запрос на снятие лайка
+    deleteLike(cardId)
+      .then(() => {
+        likeButton.classList.remove("card__like-button_is-active");
+        // Обновляем счётчик лайков
+        const likeCountElement = likeButton.closest(".card").querySelector(".card__like-count");
+        likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
+      })
+      .catch((error) => {
+        console.error("Ошибка при снятии лайка:", error);
+      });
+  } else {
+    // Если карточка не лайкнута, отправляем запрос на постановку лайка
+    putLike(cardId)
+      .then(() => {
+        likeButton.classList.add("card__like-button_is-active");
+        // Обновляем счётчик лайков
+        const likeCountElement = likeButton.closest(".card").querySelector(".card__like-count");
+        likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
+      })
+      .catch((error) => {
+        console.error("Ошибка при постановке лайка:", error);
+      });
+  }
 }
-

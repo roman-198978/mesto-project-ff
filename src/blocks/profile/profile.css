@@ -20,3 +20,8 @@
     text-align: center;
   }
 }
+.popup__error_visible {
+    color: red;
+    display: block;
+    font-size: 12px;
+}

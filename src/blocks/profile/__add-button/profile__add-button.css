@@ -32,3 +32,10 @@
     width: 100%;
   }
 }
+.popup__button_disabled {
+    background: transparent;
+    border: 2px solid #000;
+    color: #000;
+    opacity: .2;
+    pointer-events: none;
+}
