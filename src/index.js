@@ -43,8 +43,8 @@ function handleProfileFormSubmit(evt) {
   updateUserData(newName, newAbout)
     .then((responseData) => {
       // Обновляем данные профиля на странице
-      profileTitle.textContent = newName;
-      profileDescription.textContent = newAbout;
+      profileTitle.textContent = responseData.name;
+      profileDescription.textContent = responseData.about;;
       // Закрываем попап
       closeModal(editProfilePopup);
     })
@@ -78,6 +78,7 @@ function handleAddCardSubmit(evt) {
             owner: newCard.owner._id,
             likes: newCard.likes
           },
+          currentUserId,
           {
             deleteCard,
             handleLikeButtonClick,
@@ -123,7 +124,7 @@ editButton.addEventListener("click", () => {
 // Открытие попапа добавления карточки
 addButton.addEventListener("click", () => {
   openModal(addCardPopup);
-  clearValidation(addCardPopup, config);
+  
 });
 //закрытие по клику на крестик и оверлей
 
@@ -163,7 +164,7 @@ formSelector: '.popup__form',
 };
 enableValidation(config);
 
-export const getCurrentUserId = () => currentUserId;
+
 // Загрузка данных пользователя и карточек при инициализации страницы
 
 await Promise.all([getUserData(), getCards()])
@@ -177,7 +178,7 @@ await Promise.all([getUserData(), getCards()])
     function addCards() {
       cardList.forEach((cardData) => {
         // Создаём новую карточку и добавляем её в список
-        const cardElement = createCard(cardData, {
+        const cardElement = createCard(cardData, currentUserId, {
           deleteCard,
           handleLikeButtonClick,
           cardImageClick,

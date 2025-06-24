@@ -1,6 +1,6 @@
 import { removeCard, deleteLike, putLike } from "./api";
 const cardTemplate = document.querySelector("#card-template").content;
-import { getCurrentUserId } from "../index.js";
+
 
 // Функция создания карточки
 export function createCard(cardData, { deleteCard, handleLikeButtonClick, cardImageClick }) {
@@ -17,7 +17,12 @@ export function createCard(cardData, { deleteCard, handleLikeButtonClick, cardIm
   likeCountElement.textContent = cardData.likes.length; // Устанавливаем количество лайков
   cardElement.dataset.id = cardData._id; // Устанавливаем cardId в data-id
 
-  const userId = getCurrentUserId();
+  // Проверка, поставил ли текущий пользователь лайк
+ const isLikedByUser = cardData.likes.some(like => like._id === userId);
+
+ if (isLikedByUser) {
+ likeButton.classList.add("card__like-button_is-active");
+ }
 
   if (cardData.owner && cardData.owner._id !== userId) {
     deleteButton.style.display = "none"; // Скрываем кнопку удаления, если карточка не принадлежит текущему пользователю
@@ -53,8 +58,8 @@ export function deleteCard(cardId, cardElement) {
 }
 
 // Функция обработки клика по кнопке лайка
-export function handleLikeButtonClick(cardId, evt) {
-  const likeButton = evt.target;
+export function handleLikeButtonClick(cardId, likeButton, likeCountElement) {
+  
   const isLiked = likeButton.classList.contains("card__like-button_is-active");
 
   if (isLiked) {
@@ -63,7 +68,6 @@ export function handleLikeButtonClick(cardId, evt) {
       .then(() => {
         likeButton.classList.remove("card__like-button_is-active");
         // Обновляем счётчик лайков
-        const likeCountElement = likeButton.closest(".card").querySelector(".card__like-count");
         likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
       })
       .catch((error) => {
@@ -75,7 +79,6 @@ export function handleLikeButtonClick(cardId, evt) {
       .then(() => {
         likeButton.classList.add("card__like-button_is-active");
         // Обновляем счётчик лайков
-        const likeCountElement = likeButton.closest(".card").querySelector(".card__like-count");
         likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
       })
       .catch((error) => {
