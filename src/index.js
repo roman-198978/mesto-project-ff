@@ -168,7 +168,7 @@ enableValidation(config);
 let userId = "";
 // Загрузка данных пользователя и карточек при инициализации страницы
 
-await Promise.all([getUserData(), getCards()])
+Promise.all([getUserData(), getCards()])
   .then(([userData, cardList]) => {
     // Сохраняем идентификатор пользователя
     userId = userData._id
