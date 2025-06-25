@@ -11,8 +11,8 @@ errorElement.textContent = errorMessage;
 // Функция удаления класса с ошибкой
 const hideInputError = (formElement, inputElement,config) => {
 const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-// Добавляем сброс кастомной валидации
-inputElement.setCustomValidity("");
+// Сбрасываем кастомное сообщение об ошибке
+inputElement.setCustomValidity('');
 inputElement.classList.remove(config.inputErrorClass);
 errorElement.classList.remove(config.errorClass);
 errorElement.textContent = "";

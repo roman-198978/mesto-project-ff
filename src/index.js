@@ -22,7 +22,7 @@ const addCardPopup = document.querySelector(".popup_type_new-card");
 const addCardForm = document.querySelector('form[name="new-place"]');
 const formAddNameCardInput = document.querySelector('input[name="place-name"]');
 const formAddLinkInput = document.querySelector('input[name="link"]');
-let currentUserId = null;
+
 // Элементы для обновления аватара
 const avatarEditButton = document.querySelector(".profile__image-edit");
 const popupAvatar = document.querySelector(".popup_type_avatar");
@@ -44,7 +44,7 @@ function handleProfileFormSubmit(evt) {
     .then((responseData) => {
       // Обновляем данные профиля на странице
       profileTitle.textContent = responseData.name;
-      profileDescription.textContent = responseData.about;;
+      profileDescription.textContent = responseData.about;
       // Закрываем попап
       closeModal(editProfilePopup);
     })
@@ -78,11 +78,12 @@ function handleAddCardSubmit(evt) {
             owner: newCard.owner._id,
             likes: newCard.likes
           },
-          currentUserId,
+          
           {
             deleteCard,
             handleLikeButtonClick,
             cardImageClick,
+            
           }
         );
         placeList.prepend(newCardElement);
@@ -164,13 +165,13 @@ formSelector: '.popup__form',
 };
 enableValidation(config);
 
-
+let userId = "";
 // Загрузка данных пользователя и карточек при инициализации страницы
 
 await Promise.all([getUserData(), getCards()])
   .then(([userData, cardList]) => {
     // Сохраняем идентификатор пользователя
-    currentUserId = userData._id;
+    userId = userData._id
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
     profileImage.style.backgroundImage = `url(${userData.avatar})`; 
@@ -178,11 +179,11 @@ await Promise.all([getUserData(), getCards()])
     function addCards() {
       cardList.forEach((cardData) => {
         // Создаём новую карточку и добавляем её в список
-        const cardElement = createCard(cardData, currentUserId, {
+        const cardElement = createCard(cardData, {
           deleteCard,
           handleLikeButtonClick,
           cardImageClick,
-          
+          userId
         });
         placeList.append(cardElement);
       });
